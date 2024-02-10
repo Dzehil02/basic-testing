@@ -24,7 +24,6 @@ describe('generateLinkedList', () => {
   test('should generate linked list from values 2', () => {
     const values = [1, 2, 3];
     const linkedList = generateLinkedList(values);
-    console.log(linkedList);
     expect(linkedList).toMatchSnapshot();
   });
 });

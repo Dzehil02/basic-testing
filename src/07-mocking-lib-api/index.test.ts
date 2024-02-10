@@ -1,5 +1,5 @@
 import axios, { Axios } from 'axios';
-import { throttledGetDataFromApi } from './index';
+import { THROTTLE_TIME, throttledGetDataFromApi } from './index';
 
 describe('throttledGetDataFromApi', () => {
   let response: {
@@ -34,16 +34,19 @@ describe('throttledGetDataFromApi', () => {
         },
       ],
     };
+    jest.useFakeTimers();
     jest.spyOn(Axios.prototype, 'get').mockResolvedValue(response);
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.clearAllMocks();
   });
 
   test('should create instance with provided base url', async () => {
     const axiosClient = jest.spyOn(axios, 'create');
     await throttledGetDataFromApi('/test');
+    jest.advanceTimersByTime(THROTTLE_TIME);
     expect(axiosClient).toBeCalledWith({
       baseURL: 'https://jsonplaceholder.typicode.com',
     });
@@ -51,12 +54,14 @@ describe('throttledGetDataFromApi', () => {
   });
 
   test('should perform request to correct provided url', async () => {
-    // await throttledGetDataFromApi('/test');
-    // expect(Axios.prototype.get).toBeCalledWith('/test');
+    await throttledGetDataFromApi('/test');
+    jest.advanceTimersByTime(THROTTLE_TIME);
+    expect(Axios.prototype.get).toBeCalledWith('/test');
   });
 
   test('should return response data', async () => {
-    // const result = await throttledGetDataFromApi('/users');
-    // expect(result).toEqual(response.data);
+    const result = await throttledGetDataFromApi('/users');
+    jest.advanceTimersByTime(THROTTLE_TIME);
+    expect(result).toEqual(response.data);
   });
 });
